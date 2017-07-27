@@ -353,6 +353,18 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    var result = [];
+
+    _.each(collection, function(item, collection) {
+      if (typeof(functionOrKey) === "function") {
+        result.push(functionOrKey.apply(item, args)); // works for function reference
+      } else if (typeof(functionOrKey) === "string") {
+        result.push(item[functionOrKey]()); // works for method
+      }
+    });
+
+    return result;
+
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -360,6 +372,19 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    var compareFunction;
+
+    if (typeof(iterator) === "function") {
+      compareFunction = function(a, b) {
+        return iterator(a) - iterator(b);
+      };
+    } else if (typeof(iterator) === "string") {
+      compareFunction = function(a, b) {
+        return a[iterator] - b[iterator];
+      };
+    }
+
+    return collection.sort(compareFunction);
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -368,6 +393,21 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var iMax = Math.max(..._.map(args, function (item) {
+      return item.length;
+    }));
+    var jMax = args.length;
+    var result = new Array(iMax);
+
+    for (var i = 0; i < iMax; i++) {
+      result[i] = new Array(jMax);
+      for (var j = 0; j < jMax; j++) {
+        result[i][j] = args[j][i];
+      }
+    }
+
+    return result;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -380,11 +420,31 @@
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var result = [];
+
+    for (var i = 0; i < args[0].length; i++) {
+      if (_.every(args, function(item) { return _.contains(item, args[0][i]); })) {
+        result.push(args[0][i]);
+      }
+    }
+
+    return result;
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    var args = Array.prototype.slice.call(arguments).slice(1);
+    var result = [];
+
+    for (var i = 0; i < array.length; i++) {
+      if (!_.some(args, function(item) { return _.contains(item, array[i]); })) {
+        result.push(array[i]);
+      }
+    }
+
+    return result;
   };
 
   // Returns a function, that, when invoked, will only be triggered at most once
