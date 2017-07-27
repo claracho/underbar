@@ -311,9 +311,9 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
-    var args = Array.prototype.slice.call(arguments);
-
-    setInterval(func, wait, ...args.slice(2));
+    //var args = Array.prototype.slice.call(arguments);
+    //setInterval(func, wait, ...args.slice(2));
+    setInterval(...arguments);
   };
 
 
@@ -415,6 +415,19 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    if (result === undefined) {
+      result = [];
+    }
+
+    if (Array.isArray(nestedArray)) {
+      for (var i = 0; i < nestedArray.length; i++) {
+        result = _.flatten(nestedArray[i], result);
+      }
+    } else {
+      result.push(nestedArray);
+    }
+
+    return result;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
